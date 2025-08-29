@@ -118,22 +118,25 @@ app.post("/create-room", auth, async(req:Request, res:Response)=>{
             }
         })
     }catch(e : unknown){
+        console.log("====================================================");
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
             if (e.code === 'P2002') {
+                console.log(1);
                 res.json({
-                    message : `Duplicate value for unique field: ${e.meta?.target}`
+                    error : `Duplicate value for unique field: ${e.meta?.target}`
                 })
             }
         } else if (e instanceof Error) {
+            console.log(2);
             res.status(411).json({
                 error : "Generic error : " + e.message
             })
-        }else{
-            res.json({
-                error : "Unknown error" + e
-            });
         }
-        return
+        res.json({
+                error : "Unknown error"
+            });
+        console.log("returned");
+        return;
     }
     console.log("sending out slug")
     res.json({
@@ -181,4 +184,4 @@ app.get("/shapes/:roomSlug", auth, async(req:Request, res: Response)=>{
 });
 
 
-app.listen(3001)
+app.listen(3001, "0.0.0.0")

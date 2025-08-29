@@ -4,10 +4,7 @@ import { ToolBar } from "@/components/toolbar"
 import { useRouter } from "next/navigation"
 
 export default function Home() {
-//   const router = useRouter()
-//   router.push("/rooms")
-// return <div>
+  return <div>
     
-//   </div>
-  return <ToolBar/>
+  </div>
 }

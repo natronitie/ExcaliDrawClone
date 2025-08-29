@@ -18,28 +18,30 @@ export const CreateRoom = ({setToPopup, setRooms}:{
             <Button onClick={async()=>{
                 const input = inRef.current
                 async function createRoom(){
-                    if(!input){
+                    if(!input) return;//avoiding ts errors
+                    if(!input.value){
                         alert("Please provide a slug");
                         return;
                     }
                     const slug = input.value
                     let createdSlug;
-                    try{
-                        createdSlug = await fetch("http://localhost:3001/create-room", {
-                            headers:{
-                                "Content-Type": "application/json",
-                                "token" : localStorage.getItem("token")??""
-                            },
-                            method:"POST",
-                            body:JSON.stringify({
-                                slug
-                            })
-                        }).then(res=>res.json())
-                    }catch(e){
-                        alert("DataBase Query failed!")
+                    createdSlug = await fetch("http://localhost:3001/create-room", {
+                        headers:{
+                            "Content-Type": "application/json",
+                            "token" : localStorage.getItem("token")??""
+                        },//keep in mind that there is a zod schema check for min 5 chars
+                        method:"POST",
+                        body:JSON.stringify({
+                            slug
+                        })
+                    }).then(res=>res.json())
+                    if(createdSlug.error){
+                        console.log("you are not a valid user");
+                        router.push("../signup");
                         return;
                     }
-                    console.log(createdSlug)
+                    console.log(createdSlug+"kya hai ye")
+                    console.log("aage basho")
                     setRooms(rooms=>{
                     const newRooms = [...rooms, 
                         <Box onClick={()=>{
@@ -51,6 +53,7 @@ export const CreateRoom = ({setToPopup, setRooms}:{
                         return newRooms
                     })
                     setToPopup(false)
+                    console.log("ho gya")
                 }
                 await createRoom()
             }} variant="primary">

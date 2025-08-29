@@ -5,7 +5,13 @@ import { RefObject, useEffect, useRef, useState } from "react";
 import {shapeType} from "@repo/common/types"
 import { ToolBar } from "@/components/toolbar";
 
-function useWindow(canvasref:RefObject<HTMLCanvasElement | null>){
+function useWindow(canvasref:RefObject<HTMLCanvasElement | null>, prevShapeRef:RefObject<{
+    type: string;
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
+}[]>){
     console.log("out of effect")
     const c = useRef(0)
     useEffect(()=>{
@@ -13,16 +19,17 @@ function useWindow(canvasref:RefObject<HTMLCanvasElement | null>){
             if(!canvasref.current) return
             canvasref.current.height = window.innerHeight;
             canvasref.current.width = window.innerWidth;
-            setInterval(()=>{
-                c.current=c.current+1;
-                console.log(c.current)
-            }, 1000)
+            // setInterval(()=>{
+            //     c.current=c.current+1;
+            //     console.log(c.current)
+            // }, 1000)
             window.addEventListener("resize", ()=>{
                 if(!canvasref.current) return
                 canvasref.current.height=window.innerHeight
                 canvasref.current.width=window.innerWidth
+                renderAll(prevShapeRef, canvasref.current.getContext("2d") as CanvasRenderingContext2D)
             })
-    }, [canvasref])
+    }, [])
 }
 
 export default function(){
@@ -32,7 +39,9 @@ export default function(){
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const prevShapeRef = useRef<shapeType[]>([])
     const figureRef = useRef<"circle" | "rect" | "triangle"| "arc" | "line" | "pointer" | "pencil">("pointer");
-    useWindow(canvasRef);    
+    
+    useWindow(canvasRef, prevShapeRef);    
+    console.log("before useEffect of useWindow");
     const fetchPrevShapes = async()=>{
         const res :{shapes:shapeType[]} = await fetch(`http://localhost:3001/shapes/${roomSlug}`, {
             headers:{
@@ -61,6 +70,7 @@ export default function(){
 
     useEffect(()=>{
         alert("twice rice")
+        console.log("hi");
         const wss = new WebSocket(`ws://localhost:8080/?token=${localStorage.getItem("token")}`)
         console.log(roomSlug)
         wss.onopen = ()=>{
@@ -87,6 +97,7 @@ export default function(){
             }
             if(!shape.stream){
                 prevShapeRef.current.push(shape)
+                if(shape.type === "pencil") renderAll(prevShapeRef, canvasRef.current?.getContext("2d") as CanvasRenderingContext2D);
                 console.log(shape.stream)
             }
             else{ 
@@ -94,7 +105,7 @@ export default function(){
                 console.log(shape.stream)
             }
         }
-    }, [canvasRef])
+    }, [])
     return <div>
         <div className="w-screen h-screen">
             <canvas ref = {canvasRef} height = {0} width = {0} />
@@ -115,7 +126,7 @@ function initGame(canvas : HTMLCanvasElement, figureRef:RefObject<"circle" | "re
     const ctx =  canvas.getContext("2d");
     let click = false;
     if(!ctx)return
-    renderAll(prevShapeRef, ctx, figureRef);
+    renderAll(prevShapeRef, ctx);
 
     let shape:shapeType;
 
@@ -140,25 +151,24 @@ function initGame(canvas : HTMLCanvasElement, figureRef:RefObject<"circle" | "re
             shape.endX = e.clientX;
             shape.endY = e.clientY;
             if(figureRef.current !== "pencil"){
-                render(shape, ctx, canvas, figureRef)
-                renderAll(prevShapeRef, ctx, figureRef)
+                render(shape, ctx, canvas)
+                renderAll(prevShapeRef, ctx)
                 wss.send(JSON.stringify({
                     type : "stream",
                     roomSlug,
                     shapeProps : shape
                 }))
             }else{
-                shape.type= "line"
-                render(shape, ctx, canvas, figureRef)
                 prevShapeRef.current.push(shape)
-                renderAll(prevShapeRef, ctx, figureRef)
+                renderAll(prevShapeRef, ctx)
+                console.log(prevShapeRef.current.length+"oe idhar");
                 wss.send(JSON.stringify({
                     type : "chat",
                     roomSlug,
                     shapeProps : shape
                 }))
                 shape.startX = shape.endX;
-                shape.startY = shape.endY
+                shape.startY = shape.endY;
             }
         }
     })
@@ -168,10 +178,11 @@ function initGame(canvas : HTMLCanvasElement, figureRef:RefObject<"circle" | "re
         console.log("mouse up")
         shape.endX = e.clientX;
         shape.endY = e.clientY;
-        ctx.clearRect(0,0,canvas.width, canvas.height)
-        ctx.beginPath();
+        if(shape.type!="pencil"){
+            ctx.clearRect(0,0,canvas.width, canvas.height)
+        }
         prevShapeRef.current.push(shape)
-        renderAll(prevShapeRef, ctx, figureRef)
+        renderAll(prevShapeRef, ctx)
         wss.send(JSON.stringify({
             type : "chat",
             roomSlug,
@@ -186,15 +197,13 @@ function renderAll(prevShapeRef:RefObject<{
     startY: number;
     endX: number;
     endY: number;
-}[]>, ctx:CanvasRenderingContext2D, figureRef: RefObject<"circle" | "rect" | "triangle" | "arc" | "line" | "pointer" | "pencil">){
+}[]>, ctx:CanvasRenderingContext2D){
         [...prevShapeRef.current].forEach(shape=>{
-            console.log(shape);
             ctx.beginPath();
             ctx.strokeStyle = "white"
             if(shape.type==="rect")ctx.rect(shape.startX, shape.startY, shape.endX-shape.startX, shape.endY-shape.startY)
             else if(shape.type==="circle")ctx.arc((shape.startX+shape.endX)/2, (shape.startY+shape.endY)/2, Math.sqrt((shape.startX-shape.endX)**2+(shape.startY-shape.endY)**2)/2, 0, 2*Math.PI)
-            else if(shape.type==="line"){
-                console.log("line")
+            else if(shape.type==="line"||shape.type==="pencil"){
                 ctx.moveTo(shape.startX, shape.startY)
                 ctx.lineTo(shape.endX, shape.endY)
             }else if (shape.type==="pointer"){
@@ -202,9 +211,10 @@ function renderAll(prevShapeRef:RefObject<{
             }
             ctx.stroke();
         })
+        console.log(prevShapeRef.current.length);
     }
 
-function render(shape:shapeType, ctx:CanvasRenderingContext2D, canvas:HTMLCanvasElement, figureRef: RefObject<"circle" | "rect" | "triangle" | "arc" | "line" | "pointer" | "pencil">){
+function render(shape:shapeType, ctx:CanvasRenderingContext2D, canvas:HTMLCanvasElement){
     if(!shape)return
     ctx.clearRect(0,0,canvas.width, canvas.height)
     ctx.beginPath();
@@ -227,9 +237,6 @@ function stream (canvas:HTMLCanvasElement, shape:shapeType, prevShapeRef:RefObje
 }[]>, figureRef: RefObject<"circle" | "rect" | "triangle" | "arc" | "line" | "pointer" | "pencil">){
     const ctx = canvas.getContext("2d")
     if(!ctx)return
-    render(shape, ctx, canvas, figureRef)
-    renderAll(prevShapeRef, ctx, figureRef)
+    render(shape, ctx, canvas)
+    renderAll(prevShapeRef, ctx)
 }
-
-
-/*y=mx+c y=-1/mx+c y=-1/nx+d 1/n-1/m x = d-c   x=mn(d-c)/m-n y = n(c-d)/m-n + c = cm-dn/m-n*/

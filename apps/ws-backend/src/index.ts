@@ -4,24 +4,13 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config"
 import { chatSchema } from "@repo/common/schema";
 import { chatType} from "@repo/common/types"
-import { Socket } from "dgram";
-import { stat } from "fs";
-import { User } from "../../../packages/db/generated/prisma";
 
 
 const jwtSecret = JWT_SECRET as string;
 
-
-/*
-step 1 : to have a state : crude one for now
-step 2 : write logic for join. chjat and leave
-step 3 : write logic for a async db call
-step 4 : learn about queues and put the db req in a queue
-step 5 : have a room based authentication  
-
-*/
-
-const wss = new WebSocketServer({port : 8080});
+const wss = new WebSocketServer({port : 8080,
+    host : "0.0.0.0"
+});
 console.log("server is listening on port : 8080")
 
 function checkUser(socket : WebSocket, url:string):string | null{
@@ -106,6 +95,7 @@ async function joinHandler(parsedData:chatType, socket : WebSocket, userId:strin
             slug:true
         }
     })
+    console.log(room);
     if(!room){
         socket.send("Invalid room")
         socket.terminate();
