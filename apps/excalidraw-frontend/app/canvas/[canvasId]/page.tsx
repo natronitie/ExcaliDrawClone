@@ -71,7 +71,7 @@ export default function(){
     useEffect(()=>{
         alert("twice rice")
         console.log("hi");
-        const wss = new WebSocket(`ws://13.201.35.90:8080/?token=${localStorage.getItem("token")}`)
+        const wss = new WebSocket(`ws://13.201.35.90:3002/?token=${localStorage.getItem("token")}`)
         console.log(roomSlug)
         wss.onopen = ()=>{
             wss.send(JSON.stringify({

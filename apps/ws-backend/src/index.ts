@@ -8,7 +8,7 @@ import { chatType} from "@repo/common/types"
 
 const jwtSecret = JWT_SECRET as string;
 
-const wss = new WebSocketServer({port : 8080,
+const wss = new WebSocketServer({port : 3002,
     host : "0.0.0.0"
 });
 console.log("server is listening on port : 3002")
