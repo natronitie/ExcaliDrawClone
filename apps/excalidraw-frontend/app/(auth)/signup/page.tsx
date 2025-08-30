@@ -24,7 +24,7 @@ export default function(){
                         alert("fill all the details")
                         return
                     }
-                    const res = await fetch("http://localhost:3001/signup", {
+                    const res = await fetch("http://13.201.35.90:3001/signup", {
                     method : "POST",
                     headers: {
                         "Content-Type": "application/json"
