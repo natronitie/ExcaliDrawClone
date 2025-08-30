@@ -11,7 +11,7 @@ const jwtSecret = JWT_SECRET as string;
 const wss = new WebSocketServer({port : 8080,
     host : "0.0.0.0"
 });
-console.log("server is listening on port : 8080")
+console.log("server is listening on port : 3002")
 
 function checkUser(socket : WebSocket, url:string):string | null{
     let decoded;
