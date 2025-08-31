@@ -11,7 +11,7 @@ import cors from "cors"
 
 const jwtSecret = JWT_SECRET as string
 
-
+console.log(jwtSecret);
 const app = express();
 
 app.use(express.json())
