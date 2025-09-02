@@ -130,9 +130,9 @@ function initGame(canvas : HTMLCanvasElement, figureRef:RefObject<"circle" | "re
 
     let shape:shapeType;
 
-    canvas.addEventListener("mousedown", (e)=>{
+    canvas.addEventListener("pointerdown", (e)=>{
         click = true;
-        console.log("mouse down")
+        console.log("pointer down")
         if(figureRef.current==="pointer"){
             click = false;
             return
@@ -145,9 +145,9 @@ function initGame(canvas : HTMLCanvasElement, figureRef:RefObject<"circle" | "re
             endY : NaN
         }
     })
-    canvas.addEventListener("mousemove", (e)=>{
+    canvas.addEventListener("pointermove", (e)=>{
         if(click){
-            console.log("mouse moving")
+            console.log("pointer moving")
             shape.endX = e.clientX;
             shape.endY = e.clientY;
             if(figureRef.current !== "pencil"){
@@ -172,10 +172,10 @@ function initGame(canvas : HTMLCanvasElement, figureRef:RefObject<"circle" | "re
             }
         }
     })
-    canvas.addEventListener("mouseup", (e)=>{
+    canvas.addEventListener("pointerup", (e)=>{
         click = false;
         if(figureRef.current==="pointer"){return}
-        console.log("mouse up")
+        console.log("pointer up")
         shape.endX = e.clientX;
         shape.endY = e.clientY;
         if(shape.type!="pencil"){
