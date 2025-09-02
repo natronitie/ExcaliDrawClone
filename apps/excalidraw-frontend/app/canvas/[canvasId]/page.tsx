@@ -43,7 +43,7 @@ export default function(){
     useWindow(canvasRef, prevShapeRef);    
     console.log("before useEffect of useWindow");
     const fetchPrevShapes = async()=>{
-        const res :{shapes:shapeType[]} = await fetch(`http://13.201.35.90:3001/shapes/${roomSlug}`, {
+        const res :{shapes:shapeType[]} = await fetch(`http://api.seoulless.shop/shapes/${roomSlug}`, {
             headers:{
                 "Content-Type": "application/json",
                 "token" : localStorage.getItem("token") as string
@@ -71,7 +71,7 @@ export default function(){
     useEffect(()=>{
         alert("twice rice")
         console.log("hi");
-        const wss = new WebSocket(`ws://13.201.35.90:3002/?token=${localStorage.getItem("token")}`)
+        const wss = new WebSocket(`ws://rtc.seoulless.shop/?token=${localStorage.getItem("token")}`)
         console.log(roomSlug)
         wss.onopen = ()=>{
             wss.send(JSON.stringify({

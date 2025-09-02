@@ -25,7 +25,7 @@ export const CreateRoom = ({setToPopup, setRooms}:{
                     }
                     const slug = input.value
                     let createdSlug;
-                    createdSlug = await fetch("http://13.201.35.90:3001/create-room", {
+                    createdSlug = await fetch("http://api.seoulless.shop/create-room", {
                         headers:{
                             "Content-Type": "application/json",
                             "token" : localStorage.getItem("token")??""

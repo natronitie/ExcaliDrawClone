@@ -16,7 +16,7 @@ export default function(){
     const [toPopup, setToPopup] = useState(false)
     useEffect(()=>{
         const getRooms =async function(){
-            const res = await fetch("http://13.201.35.90:3001/rooms", {
+            const res = await fetch("http://api.seoulless.shop/rooms", {
                 method : "GET",
                 headers:{
                     "token" : localStorage.getItem("token") as string,
