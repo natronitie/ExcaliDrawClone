@@ -17,16 +17,16 @@ function useWindow(canvasref:RefObject<HTMLCanvasElement | null>, prevShapeRef:R
     useEffect(()=>{
             console.log("hook called")
             if(!canvasref.current) return
-            canvasref.current.height = window.innerHeight;
-            canvasref.current.width = window.innerWidth;
+            canvasref.current.height = (window.visualViewport as VisualViewport).height;
+            canvasref.current.width = (window.visualViewport as VisualViewport).width;
             // setInterval(()=>{
             //     c.current=c.current+1;
             //     console.log(c.current)
             // }, 1000)
             window.addEventListener("resize", ()=>{
                 if(!canvasref.current) return
-                canvasref.current.height=window.innerHeight
-                canvasref.current.width=window.innerWidth
+                canvasref.current.height=(window.visualViewport as VisualViewport).height
+                canvasref.current.width=(window.visualViewport as VisualViewport).width
                 renderAll(prevShapeRef, canvasref.current.getContext("2d") as CanvasRenderingContext2D)
             })
     }, [])
