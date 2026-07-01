@@ -117,13 +117,3 @@ This lets your team share build artifacts across machines.
  
 ---
  
-## 🤝 Contributing
- 
-Pull requests are welcome. For major changes, open an issue first to discuss what you'd like to change.
- 
----
- 
-## 📄 License
- 
-This project is open source. See [LICENSE](./LICENSE) for details.
- 
